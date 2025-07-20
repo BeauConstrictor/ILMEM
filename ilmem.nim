@@ -1,4 +1,4 @@
-import std/os, std/strutils, std/httpclient
+import std/os, std/strutils, std/httpclient, std/terminal
 
 const
     extensionDirHome = "~/.ilm/extensions/"
@@ -11,9 +11,16 @@ let
 proc install(ext: string) =
     echo "Installing extension: '" & ext & "'"
 
+    echo "Downloading notice...\n"
+    let notice = http.getContent(repo & ext & ".notice.txt")
+
+    stdout.write notice
+    if getch() != 'y':
+        echo "Abort."
+        return
+
     echo "Downloading extension..."
     let executable = http.getContent(repo & ext)
-    # let executable = readFile("repo/" & ext)
 
     echo "Installing to " & extensionDir
     writeFile(extensionDir & ext, executable)
