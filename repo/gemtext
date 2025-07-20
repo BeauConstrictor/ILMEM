@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Read the Gemini URL from stdin (required by ILM)
+read -r URL
+
+# Extract host and path parts
+HOST=$(echo "$URL" | sed -E 's#gemini://([^:/]+).*#\1#')
+PORT=1965
+BASE_PATH=$(echo "$URL" | sed -E 's#gemini://[^/]+##')
+BASE_DIR=$(dirname "$BASE_PATH")
+
+# Make Gemini request
+RESPONSE=$(echo -e "$URL\r\n" | openssl s_client -quiet -connect "$HOST:$PORT" 2>/dev/null)
+
+# Split response into header and body
+STATUS_LINE=$(echo "$RESPONSE" | head -n 1)
+BODY=$(echo "$RESPONSE" | tail -n +2)
+STATUS_CODE=$(echo "$STATUS_LINE" | cut -d' ' -f1)
+
+# Handle non-success statuses
+if [[ "$STATUS_CODE" != 2* ]]; then
+    echo "**Error:** Gemini request failed with status: $STATUS_LINE"
+    exit 1
+fi
+
+# Function to resolve links to absolute Gemini or external URLs
+resolve_url() {
+  local LINK="$1"
+
+  # External full URLs
+  if [[ "$LINK" =~ ^(gemini|https?|mailto): ]]; then
+    echo "gemtext:$LINK"
+  
+  # Root-relative Gemini path
+  elif [[ "$LINK" =~ ^/ ]]; then
+    echo "gemtext:gemini://$HOST$LINK"
+
+  # Relative Gemini path
+  else
+    local full_path="$BASE_DIR/$LINK"
+    full_path=$(echo "$full_path" | sed 's#/\{1,\}#/#g')
+    echo "gemtext:gemini://$HOST$full_path"
+  fi
+}
+
+# Process and convert Gemtext to Markdown
+echo "$BODY" | while IFS= read -r line; do
+  if [[ "$line" == '=>'* ]]; then
+    link=$(echo "$line" | awk '{print $2}')
+    label=$(echo "$line" | cut -d' ' -f3-)
+    abs_link=$(resolve_url "$link")
+    if [[ -z "$label" ]]; then
+      echo "[$abs_link]($abs_link)"
+    else
+      echo "[$label]($abs_link)"
+    fi
+  else
+    echo "$line" | sed -E \
+      -e 's/^### (.*)$/### \1/' \
+      -e 's/^## (.*)$/## \1/' \
+      -e 's/^# (.*)$/# \1/' \
+      -e 's/^
+
+/
+
+/' \
+      -e 's/^>/\>/' \
+      -e 's/^\*\s(.*)$/- \1/' \
+      -e '/^$/s/^$/\n/'
+  fi
+done
+
