@@ -1,4 +1,4 @@
-import std/os, std/strutils, std/files, std/httpclient
+import std/os, std/strutils, std/httpclient
 
 const
     extensionDirHome = "~/.ilm/extensions/"
