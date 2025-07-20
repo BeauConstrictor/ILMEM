@@ -8,4 +8,4 @@ This extension reads local files from disk.
 
 - None
 
-Proceed? (y/n) 
+Proceed? (y/N) 

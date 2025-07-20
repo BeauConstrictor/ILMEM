@@ -9,4 +9,4 @@ This extension uses `openssl` to fetch ILM documents on the gemini network.
 
 - `openssl` (almost certainly already installed)
 
-Proceed? (y/n) 
+Proceed? (y/N) 

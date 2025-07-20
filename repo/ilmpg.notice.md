@@ -9,4 +9,4 @@ Displays the contents of a given page in the ILMPG manual.
 
 - ILM Page Gazer (ILMPG)
 
-Proceed? (y/n) 
+Proceed? (y/N) 

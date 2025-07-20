@@ -6,4 +6,4 @@ This extension makes no attempt to actually view HTML documents, or fetch anythi
 
 - None
 
-Proceed? (y/n) 
+Proceed? (y/N) 

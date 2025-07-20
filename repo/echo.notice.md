@@ -8,4 +8,4 @@ It simply echoes back the location it is given.
 
 - None
 
-Proceed? (y/n) 
+Proceed? (y/N) 

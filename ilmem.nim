@@ -1,44 +1,55 @@
-import std/os, std/strutils, std/httpclient, std/terminal
+import std/os, std/strutils, std/httpclient, std/terminal, std/osproc, std/streams
 
 const
     extensionDirHome = "~/.ilm/extensions/"
     repo = "https://raw.githubusercontent.com/BeauConstrictor/ILMEM/main/repo/"
 
 let
-    extensionDir = extensionDirHome.replace("~/", getHomeDir().string)
+    extensionDir = extensionDirHome.replace("~/", getHomeDir())
     http = newHttpClient()
+
+proc md2ansi(md: string): string =
+  let (cols, _) = terminalSize()
+
+  const p = "/usr/local/bin/md2ansi"
+  let prc = startProcess(p, ".", 
+    ["--no-links", "--width", $cols])
+  prc.inputStream.writeLine(md)
+  prc.inputStream.flush()
+  prc.inputStream.close()
+  return prc.outputStream.readAll()
 
 proc install(ext: string) =
     echo "Installing extension: '" & ext & "'"
 
-    echo "Downloading notice...\n"
-    let notice = http.getContent(repo & ext & ".notice.txt")
+    echo "1. Downloading notice...\n"
+    let notice = http.getContent(repo & ext & ".notice.md")
 
-    stdout.write notice
+    echo md2ansi("---\n\n" & notice & "\n\n---")
     if getch() != 'y':
         echo "Abort."
         return
 
-    echo "Downloading extension..."
+    echo "2. Downloading extension..."
     let executable = http.getContent(repo & ext)
 
-    echo "Installing to " & extensionDir
+    echo "3. Installing to " & extensionDir
     writeFile(extensionDir & ext, executable)
 
-    echo "Adding execute permission..."
-    echo execShellCmd("chmod +x \"" & extensionDir & ext & "\"")
+    echo "5. Adding execute permission..."
+    discard execShellCmd("chmod +x \"" & extensionDir & ext & "\"")
 
-    echo "Done!"
+    echo "~~ Done!"
 
 proc remove(ext: string) =
     if fileExists(extensionDir & ext):
-        echo "Removing extension: '" & ext & "'"
-        echo "Deleting file..."
+        echo "1. Removing extension: '" & ext & "'"
+        echo "2. Deleting file..."
         if tryRemoveFile(extensionDir & ext):
-            echo "Done!"
+            echo "~~ Done!"
         else:
-            echo "Deletion failed"
-            echo "Abort."
+            echo "!! Deletion failed"
+            echo "~~ Abort."
     else:
         echo "Extension '" & ext & "' is not installed"
         echo "Abort."
@@ -50,7 +61,7 @@ proc run(ext: string, loc: string) =
     discard execShellCmd(runCmd)
 
 proc list() =
-    echo "Installed extensions:"
+    echo "~~ Installed extensions:"
     for item in walkDir(extensionDir):
         echo item.path.split("/")[^1]
 
