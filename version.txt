@@ -1,0 +1,3 @@
+ilmem 0.1.0 – InterLinkedMarkdown Extension Manager
+Copyright (c) 2025
+MIT Licensed

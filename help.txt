@@ -1,0 +1,21 @@
+ilmem - InterLinkedMarkdown Extension Manager
+
+Manage standardised ILM extensions.
+Extensions installed via ilmem should be compatible with most modern ILM-based programs.
+
+Usage:
+  ilmem --help                Show this help message
+  ilmem --version             Show the version number
+
+  ilmem install <name>        Install an extension by name
+  ilmem remove <name>         Remove an installed extension
+  ilmem list                  List installed extensions
+  ilmem update <name>         Re-install an extension (overwrite)
+  ilmem run <name> <location> Test-run an extension, with any location
+
+Extensions are installed to:
+  ~/.ilm/extensions/
+
+Example:
+  ilmem install gemini
+  ilmem info url

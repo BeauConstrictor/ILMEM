@@ -1,0 +1,33 @@
+#!/bin/bash
+
+read -r URL
+
+HOST=$(echo "$URL" | sed -E 's#gemini://([^:/]+).*#\1#')
+PORT=1965
+
+# Send Gemini request
+RESPONSE=$(echo -e "$URL\r\n" | \
+    openssl s_client -quiet -connect "$HOST:$PORT" 2>/dev/null)
+
+# Separate header and body
+STATUS_LINE=$(echo "$RESPONSE" | head -n 1)
+BODY=$(echo "$RESPONSE" | tail -n +2)
+
+# Basic status check
+STATUS_CODE=$(echo "$STATUS_LINE" | cut -d' ' -f1)
+if [[ "$STATUS_CODE" != 2* ]]; then
+    echo "**Error:** Gemini request failed with status: $STATUS_LINE"
+    exit 1
+fi
+
+# Convert Gemtext to Markdown
+echo "$BODY" | sed -E \
+  -e 's/^### (.*)$/### \1/' \
+  -e 's/^## (.*)$/## \1/' \
+  -e 's/^# (.*)$/# \1/' \
+  -e 's/^=> ([^ ]+) (.*)$/[\2](\1)/' \
+  -e 's/^=> ([^ ]+)$/[\1](\1)/' \
+  -e 's/^```/```/' \
+  -e 's/^>/\>/' \
+  -e 's/^\*\s(.*)$/- \1/' \
+  -e '/^=>/!s/^/\n/'
