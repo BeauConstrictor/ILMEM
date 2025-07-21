@@ -1,0 +1,7 @@
+#!/bin/bash
+
+read -r TEXT
+
+echo "# :( Something went wrong..."
+echo ""
+echo $TEXT

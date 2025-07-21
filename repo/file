@@ -1,4 +1,4 @@
 #!/bin/bash
 
 read -r FILE
-cat $FILE
+eval cat $FILE
