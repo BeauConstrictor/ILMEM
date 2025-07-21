@@ -29,6 +29,12 @@ Adding execute permission...
 Done!
 ```
 
+## Dependencies
+
+The script `md2ansi` is the only real dependency of ILMPG. See it's [github page](url: https://raw.githubusercontent.com/Open-Technology-Foundation/md2ansi/refs/heads/main/README.md) for installation instructions
+
+It is a python script that, as the name implies, converts markdown files to nicely rendered ANSI text for the terminal.
+
 ## Platform Support
 
 - Linux/macOS: Fully supported.
