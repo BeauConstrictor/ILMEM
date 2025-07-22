@@ -30,14 +30,19 @@ proc install(ext: string) =
         echo "Abort."
         return
 
-    echo "2. Downloading extension..."
+    echo "2. Downloading executable..."
     let executable = http.getContent(repo & ext)
+
+    echo "2. Downloading encoder..."
+    let encoder = http.getContent(repo & ext & "-encoder")
 
     echo "3. Installing to " & extensionDir
     writeFile(extensionDir & ext, executable)
+    writeFile(extensionDir & ext & "-encoder", encoder)
 
-    echo "5. Adding execute permission..."
+    echo "5. Adding execute permissions..."
     discard execShellCmd("chmod +x \"" & extensionDir & ext & "\"")
+    discard execShellCmd("chmod +x \"" & extensionDir & ext & "-encoder" & "\"")
 
     echo "~~ Done!"
 
