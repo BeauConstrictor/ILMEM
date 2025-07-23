@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+
+import sys
+import socket
+
+def parse_gopher_line(line):
+    """Parses a single Gopher menu line into a Markdown string."""
+    if not line or line == ".":
+        return None
+
+    type_char = line[0]
+    parts = line[1:].split("\t")
+    if len(parts) < 4:
+        return f"`(malformed line)` {line}"
+
+    display, selector, host, port = parts[0], parts[1], parts[2], parts[3]
+
+    url = f"gopher://{host}/{type_char}{selector}"
+
+    if type_char == "i":
+        return display
+    elif type_char == "0":
+        return f"- **{display}** → [View]({url})"
+    elif type_char == "1":
+        return f"- **{display}** → [Open menu]({url})"
+    elif type_char == "7":
+        return f"- **{display}** → [Search]({url})"
+    elif type_char == "h":
+        # h means it's a URL (http, usually)
+        return f"- **{display}** → [Visit]({selector})"
+    else:
+        return f"- **{display}** *(type {type_char})* → {url}"
+
+def fetch_gopher(host, port, selector):
+    """Connects to a Gopher server and fetches the selector."""
+    try:
+        with socket.create_connection((host, port), timeout=5) as sock:
+            sock.sendall((selector + "\r\n").encode("utf-8"))
+            response = sock.recv(65536).decode("utf-8", errors="replace")
+            return response.splitlines()
+    except Exception as e:
+        return [f"**Error:** Failed to connect to {host}:{port} — {e}"]
+
+def main():
+    url = sys.stdin.readline().strip()
+    if not url.startswith("gopher://"):
+        print("**Error:** Not a Gopher URL")
+        return
+
+    # Strip protocol
+    url = url[len("gopher://"):]
+    
+    if "/" in url:
+        hostport, selector = url.split("/", 1)
+        selector = "/" + selector
+    else:
+        hostport = url
+        selector = ""
+
+    if ":" in hostport:
+        host, port = hostport.split(":")
+        port = int(port)
+    else:
+        host = hostport
+        port = 70
+
+    if not host:
+        print("**Error:** Invalid Gopher URL — no host found")
+        return
+
+    lines = fetch_gopher(host, port, selector)
+
+    for line in lines:
+        parsed = parse_gopher_line(line)
+        if parsed:
+            print(parsed)
+
+if __name__ == "__main__":
+    main()

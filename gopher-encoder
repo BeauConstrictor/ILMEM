@@ -1,0 +1,6 @@
+#!/bin/bash
+
+read -r TEXT
+
+ENCODED=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "$TEXT")
+echo "$ENCODED"
