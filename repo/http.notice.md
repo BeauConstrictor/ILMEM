@@ -1,6 +1,6 @@
 # HTTP
 
-Fetches an HTTP URL. Obviously, the server should return ILM content and not HTML - this is an ILM extension.
+Fetches an HTTP URL. This is not a translator, it is an extension for viewing ILM documents over HTTP. If you need a translator, see the (WIP) HTTP extension.
 
 ## Dependencies
 
