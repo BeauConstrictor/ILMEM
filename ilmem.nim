@@ -22,8 +22,13 @@ proc md2ansi(md: string): string =
 proc install(ext: string) =
     echo "Installing extension: '" & ext & "'"
 
+    var notice: string
+    try:
+        notice = http.getContent(repo & ext & ".notice.md")
+    except HttpRequestError as err:
+        echo "Error while downloading '" & ext & "': " & err.msg
+        quit 0
     echo "1. Downloading notice...\n"
-    let notice = http.getContent(repo & ext & ".notice.md")
 
     echo md2ansi("---\n\n" & notice & "\n\n---")
     if getch() != 'y':
