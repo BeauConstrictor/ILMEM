@@ -15,7 +15,7 @@ Extensions are stored in `~/.ilm/extensions/`, where each one is an executable s
 To build `ilmem` from source (requires Nim):
 
 ```bash
-nim c -d:release -o:ilmem ilmem.nim
+nim c -d:release -d:ssl ilmem.nim
 ```
 
 ## Example Usage
