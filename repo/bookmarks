@@ -1,0 +1,160 @@
+#!/usr/bin/python3
+
+import json
+import os.path
+from sys import exit
+import urllib.request
+
+DIR = os.path.expanduser("~/.ilm/bookmarks/")
+
+FILES = [
+    "create.md",
+    "in-creation.json",
+    "list.json",
+    "step1.md",
+    "step2.md",
+    "step3.md",
+    "template.md",
+]
+
+REPO = "https://raw.githubusercontent.com/BeauConstrictor/ILMEM/main/repo/"
+
+def http_get(url):
+    with urllib.request.urlopen(url) as response:
+        status = response.getcode()
+        headers = response.info()
+        body = response.read().decode()
+    return body
+
+def check_if_first_run():    
+    if os.path.exists(DIR): return
+    
+    print("# Welcome to Bookmarks!\n")
+    print("The extension will now be installed.\n")
+    
+    os.makedirs(DIR)
+    print("- Created ~/.ilm/bookmarks.")
+        
+    for i in FILES:
+        url = REPO+"bookmarks-install/"+i
+        response = http_get(url)
+        with open(DIR+i, "w") as f:
+            f.write(response)
+        print(f"- Created {i}.")
+    
+    print("\n**Bookmarks has been installed.**")
+    print("Reload the page to get started.")
+    
+    exit(0)
+
+def list_bookmarks():
+    with open(DIR+"list.json", "r") as f:
+        bookmarks = json.load(f)
+        
+    with open(DIR+"template.md", "r") as f:
+        template = f.read()
+
+    bookmarks_string = ""
+
+    for i, b in enumerate(bookmarks):
+        bookmarks_string += f"{i+1}. [{b[0]}]({b[1]}: {b[2]})\n"
+        
+    if len(bookmarks) == 0:
+        bookmarks_string += "**Create a bookmark to get started.**\n"
+
+    template = template.replace("$BOOKMARKS", bookmarks_string).strip()
+    print(template)
+    
+def create():
+    with open(DIR+"create.md", "r") as f:
+        print(f.read())
+    
+def step1(title):
+    with open(DIR+"in-creation.json", "w") as f:
+        json.dump({
+            "title": title,
+        }, f, indent=4)
+    
+    with open(DIR+"step1.md", "r") as f:
+        print(f.read())
+        
+def step2(extension):
+    with open(DIR+"in-creation.json", "r") as f:
+        bookmark = json.load(f)
+        
+    bookmark["extension"] = extension
+    
+    with open(DIR+"in-creation.json", "w") as f:
+        json.dump(bookmark, f, indent=4)
+    
+    with open(DIR+"step2.md", "r") as f:
+        print(f.read())
+
+def step3(location):
+    with open(DIR+"in-creation.json", "r") as f:
+        bookmark = json.load(f)
+    with open(DIR+"list.json", "r") as f:
+        bookmarks = json.load(f)
+        
+    bookmark["location"] = location
+    bookmarks.insert(0, [
+        bookmark["title"],
+        bookmark["extension"],
+        bookmark["location"],
+    ])
+    
+    with open(DIR+"in-creation.json", "w") as f:
+        json.dump({}, f, indent=4)
+    with open(DIR+"list.json", "w") as f:
+        json.dump(bookmarks, f, indent=4)
+    with open(DIR+"step3.md", "r") as f:
+        print(f.read())
+    
+def remove():
+    with open(DIR+"remove.md", "r") as f:
+        print(f.read())
+        
+def removeWithId(id):
+    with open(DIR+"list.json", "r") as f:
+        bookmarks = json.load(f)
+        
+    try:
+        int(id)
+    except:
+        print("You must enter the number of the bookmark to remove it.")
+        return
+    
+    try:
+        bookmarks.pop(int(id) - 1)
+    except:
+        print("That number is not in the list!")
+        return
+
+    print("Removed!")
+    
+    with open(DIR+"list.json", "w") as f:
+        json.dump(bookmarks, f, indent=4)
+    
+if __name__ == "__main__":
+    check_if_first_run()
+    
+    choice = input()
+    if choice == "list":
+        list_bookmarks()
+        
+    elif choice == "create":
+        create()
+    elif choice.startswith("Step 1 "):
+        step1(choice[len("Step 1 "):])
+    elif choice.startswith("Step 2 "):
+        step2(choice[len("Step 2 "):])
+    elif choice.startswith("Step 3 "):
+        step3(choice[len("Step 3 "):])
+        
+    elif choice == "remove":
+        remove()
+    elif choice.startswith("Remove "):
+        removeWithId(choice[len("Remove "):])
+        
+    else:
+        print("Did you mean 'list'?")

@@ -2,7 +2,8 @@
 
 You can save pages here to return to them later.
 
-[Add a Bookmark](bookmarks: Create)
+[Add a Bookmark](bookmarks: create)
+[Remove a Bookmark](bookmarks: remove)
 
 ---
 
