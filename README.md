@@ -1,6 +1,6 @@
 # ILMEM – ILM Extension Manager
 
-A simple command-line utility for managing ILM (InterLinkedMarkdown) extensions. It allows you to install, remove, list, and update ILM extensions with a single command.
+A simple command-line utility for managing ILM (InterLinkedMarkdown) extensions. It allows you to install, remove, list, update and run ILM extensions with a single command.
 
 Extensions are stored in `~/.ilm/extensions/`, where each one is an executable script or binary that processes ILM links. This format is standardised by ILM, so should now be supported (sometimes along with a bespoke extension system for backwards compatibility) in most modern programs.
 
