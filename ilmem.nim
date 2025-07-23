@@ -39,15 +39,18 @@ proc install(ext: string) =
     let executable = http.getContent(repo & ext)
 
     echo "2. Downloading encoder..."
-    let encoder = http.getContent(repo & ext & "-encoder")
+    try:
+        let encoder = http.getContent(repo & ext & "-encoder")
+        discard execShellCmd("chmod +x \"" & extensionDir & ext & "-encoder" & "\"")
+        writeFile(extensionDir & ext & "-encoder", encoder)
+    except HttpRequestError:
+        discard
 
     echo "3. Installing to " & extensionDir
     writeFile(extensionDir & ext, executable)
-    writeFile(extensionDir & ext & "-encoder", encoder)
 
     echo "5. Adding execute permissions..."
     discard execShellCmd("chmod +x \"" & extensionDir & ext & "\"")
-    discard execShellCmd("chmod +x \"" & extensionDir & ext & "-encoder" & "\"")
 
     echo "~~ Done!"
 

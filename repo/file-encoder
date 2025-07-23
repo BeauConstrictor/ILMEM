@@ -1,4 +1,0 @@
-#!/bin/bash
-
-read -r TEXT
-echo -n $TEXT
