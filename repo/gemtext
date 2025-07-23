@@ -29,17 +29,17 @@ resolve_url() {
 
   # External full URLs
   if [[ "$LINK" =~ ^(gemini|https?|mailto): ]]; then
-    echo "gemtext:$LINK"
+    echo "gemtext: $LINK"
   
   # Root-relative Gemini path
   elif [[ "$LINK" =~ ^/ ]]; then
-    echo "gemtext:gemini://$HOST$LINK"
+    echo "gemtext: gemini://$HOST$LINK"
 
   # Relative Gemini path
   else
     local full_path="$BASE_DIR/$LINK"
     full_path=$(echo "$full_path" | sed 's#/\{1,\}#/#g')
-    echo "gemtext:gemini://$HOST$full_path"
+    echo "gemtext: gemini://$HOST$full_path"
   fi
 }
 
@@ -50,9 +50,9 @@ echo "$BODY" | while IFS= read -r line; do
     label=$(echo "$line" | cut -d' ' -f3-)
     abs_link=$(resolve_url "$link")
     if [[ -z "$label" ]]; then
-      echo "[$abs_link]($abs_link)"
+      echo "- [$abs_link]($abs_link)"
     else
-      echo "[$label]($abs_link)"
+      echo "- [$label]($abs_link)"
     fi
   else
     echo "$line" | sed -E \
